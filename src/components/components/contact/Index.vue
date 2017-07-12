@@ -31,16 +31,16 @@
   </div>
 </template>
 <script>
-import Vue from 'vue'
-import AlloyFinger from 'alloyfinger/alloy_finger.js'
-import AlloyFingerVue from 'alloyfinger/vue/alloy_finger.vue.js'
+import Vue from 'vue';
+import AlloyFinger from 'alloyfinger/alloy_finger.js';
+import AlloyFingerVue from 'alloyfinger/vue/alloy_finger.vue.js';
 Vue.use(AlloyFingerVue, {
   AlloyFinger
 })
 export default {
   methods: {
     touchMove(e) {
-      e.preventDefault();//禁止滚动
+      e.preventDefault(); // 禁止滚动
       var Y = e.changedTouches[0].clientY - document.querySelector('.index').offsetTop;
       var cell = document.querySelector('.index').offsetHeight / 27;
       if (Y < cell) { location.replace('#hash'); }

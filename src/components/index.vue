@@ -21,7 +21,6 @@
     </div>
     <div id="search-result" class="container">
     </div>
-  
     <footer>
       <div class="inputdiv">
         <i class="iconfont icon-search search"></i>

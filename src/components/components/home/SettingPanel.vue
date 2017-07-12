@@ -16,9 +16,9 @@ export default {
   data() {
     return {
       isModalShow: false
-    }
+    };
   }
-}
+};
 </script>
 <style lang="less" scoped>
 @import '../../less/common.less';

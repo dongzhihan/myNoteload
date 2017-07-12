@@ -22,6 +22,7 @@ const api = {
     };
   },
   login: 'http://localhost:3000/login',
-  userInfo: 'http://localhost:3000/users/userInfo'
+  userInfo: 'http://localhost:3000/users/userInfo',
+  folder: 'http://localhost:3000/note/folder'
 }; // //////////api存放位置
 export default api;

@@ -23,35 +23,37 @@
   </modal>
 </template>
 <script>
-import api from '../../../js/api'
+import api from '../../../js/api';
 export default {
   data() {
     return {
       newFolderType: 'diary',
       newFolderName: '',
-    }
+    };
   },
   methods: {
     newFolder() {
+      console.log(1);
       if (!this.newFolderName) {
-        alert('请输入文件夹名')
-        return
+        alert('请输入文件夹名');
+        return;
       }
       if (this.newFolderName.length > 8) {
-        alert('文件夹名称请不要超过8个字')
-        return
+        alert('文件夹名称请不要超过8个字');
+        return;
       }
-      this.$axios.post(api.newFolder, {
+      this.$axios.post(api.folder, {
         type: this.newFolderType,
+        userid:this.$store.state.userid,
         foldername: this.newFolderName,
         createdate: +new Date()
       })
         .then(res => {
-          if (res.data.code === 11) {
-            alert('登录失效')
-            this.$router.push('/login')
-          }
-          if (res.data.code === 0) {
+       /*   if (res.data.code === 11) {
+            alert('登录失效');
+            this.$router.push('/login');
+          }*/
+          if (res.data === 0) {
             this.$modal.hide('new-folder');
             this.$parent.getFolder();
           }
@@ -61,7 +63,7 @@ export default {
         });
     }
   }
-}
+};
 </script>
 <style lang="less" scoped>
 @import '../../../../less/common.less';
