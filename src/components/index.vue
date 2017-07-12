@@ -1,112 +1,257 @@
 <template>
-  <div>
-    <swiper>
-      <swiper-item class="swiper-demo-img" v-for="(item, index) in imgList" :key="index"><img style="height:100%;width:100%" :src="item"></swiper-item>
-    </swiper>
-    <!--    <div class="flexCenter" style="display:flex; flex-wrap: wrap">
-      <div @click="goTo(item.id)" style="margin-top:0.3rem;width:50%" v-for="(item,index) in bedTypes">
-        <div class="center"><img style="width:80%;height:80%" :src="item.src" alt="">
-        </div>
-        <div class="center fontName"><span>{{item.title}}</span></div>
+  <div class="home">
+    <header>
+      <img src="../../assets/avatar.png" alt="avatar" class="img-circle">
+      <div class="name">
+        <div class="username">{{username}}</div>
+        <div class="nickname">{{nickname}}</div>
       </div>
-    </div>-->
-    <panel header="列表" @on-click-item="goTo" :list="bedTypes" type="1"></panel>
+      <i class="iconfont icon-tianjia" @click="showNewFolderModal"></i>
+    </header>
+  
+    <div id="main">
+      <div v-for="item in items" class="item" :data-folderid="item._id" :data-total="item.total" :data-foldername="item.foldername" v-finger:long-tap="showDeleteModal" :data-type="item.type" @click="jump" :key="item._id">
+        <i class="iconfont" :class="transferToIcon(item.type)"></i>
+        <span>{{item.foldername}}</span>
+        <div class="total">
+          <span>{{item.total}}</span>
+          <i class="iconfont icon-next"></i>
+        </div>
+      </div>
+    </div>
+    <div id="search-result" class="container">
+    </div>
+  
+    <footer>
+      <div class="inputdiv">
+        <i class="iconfont icon-search search"></i>
+        <input type="text" name="search" id="search">
+      </div>
+      <i class="iconfont icon-setting cog" @click="toSetting"></i>
+    </footer>
+  
+    <new-folder-modal></new-folder-modal>
+    <delete-modal ref="DeleteModal"></delete-modal>
   </div>
 </template>
-<style scoped>
-  .carGroup {
-    display: flex;
-    flex-wrap: wrap;
-  }
-
-  .car {
-    width: 100px;
-    margin-top: 15px;
-  }
-
-</style>
 <script>
-  import {
-    Swiper,
-    SwiperItem,
-    Selector,
-    Group,
-    Panel,
-    XButton
-  } from 'vux';
-  // import api from '../js/api';
+import api from '../js/api'
+import Vue from 'vue'
+import { mapState, mapMutations } from 'vuex'
+import vmodal from 'vue-js-modal'
+Vue.use(vmodal)
+import NewFolderModal from '../components/components/home/NewFolderModal.vue'
+import DeleteModal from '../components/components/DeleteModal.vue'
 
-  export default {
-    data() {
-      return {
-        defaultValue: '',
-        imgList: [
-          'http://placeholder.qiniudn.com/800x300/FF3B3B/ffffff',
-          'http://placeholder.qiniudn.com/800x300/FFEF7D/ffffff',
-          'http://placeholder.qiniudn.com/800x300/8AEEB1/ffffff'
-        ],
-        bedTypes: [
-
-          {
-            src: 'https://oixyh3u6e.qnssl.com/livingearth/livingearth.png',
-            id: 5,
-            title: '大床房',
-            desc: '由各种物质组成的巨型球状天体，叫做星球。星球有一定的形状，有自己的运行轨道。',
-          },
-          {
-            src: 'https://oixyh3u6e.qnssl.com/livingearth/livingearth.png',
-            id: 6,
-            title: 'no2'
-          },
-          {
-            src: 'https://oixyh3u6e.qnssl.com/livingearth/livingearth.png',
-            id: 7,
-            title: 'no3'
-          },
-          {
-            src: 'https://oixyh3u6e.qnssl.com/livingearth/livingearth.png',
-            id: 8,
-            title: 'no4'
-          },
-          {
-            src: 'https://oixyh3u6e.qnssl.com/livingearth/livingearth.png',
-            id: 9,
-            title: 'no5'
-          }
-        ]
-      };
-    },
-    components: {
-      Selector,
-      Group,
-      XButton,
-      Swiper,
-      SwiperItem,
-      Panel
-    },
-    methods: {
-      goTo(item) {
-        console.log(item);
-        //  this.$http.post(api.xxx, data, api.config).then((data) => {
-        // if (data.data.Errcode === 0) {
-        this.$router.push({
-          name: 'bedDetail',
-          params: {
-            id: item.id
-          }
-        });
-        // }
-        // });
-      }
+export default {
+  components: {
+    NewFolderModal,
+    DeleteModal
+  },
+  data() {
+    return {
+      username: '立花　瀧',
+      nickname: 'たちばな　たき',
+      items: [],
+      list: [],
+      selectedItem: ''
     }
-  };
-
-</script>
-<style scoped>
-  .fontName {
-    font-size: 0.5rem;
-    font-weight: bold;
-    font-family: STXihei, "华文细黑", "Microsoft YaHei", "微软雅黑";
+  },
+  activated() {
+    this.getFolder()
+    this.getInfo()
+  },
+  computed: mapState([
+    'currentFolder',
+    'currentFolderName'
+  ]),
+  methods: {
+    ...mapMutations([
+      'changeCurrentFolder',
+      'changeCurrentFolderName',
+      'changeCurrentCount'
+    ]),
+    transferToIcon(type) {
+      return 'icon-' + (type === 'diary' ? 'book' : type === 'contact' ? 'contact' : type === 'todolist' ? 'alert' : false);
+    },
+    showNewFolderModal() {
+      this.$modal.show('new-folder');
+    },
+    toSetting() {
+      this.$router.push('/setting');
+    },
+    showDeleteModal(e) {
+      this.$refs.DeleteModal.isModalShow = true
+      var target = e.target
+      while (!target.dataset.folderid) {
+        if (target.dataset.folderid) {
+          break
+        }
+        target = target.parentNode
+      }
+      this.selectedItem = target.dataset.folderid
+      console.log(this.selectedItem)
+    },
+    jump(event) {
+      var dataset = event.currentTarget.dataset
+      var type = dataset.type
+      var id = dataset.folderid
+      var name = dataset.foldername
+      var total = dataset.total
+      this.changeCurrentFolder(id)
+      this.changeCurrentFolderName(name)
+      this.changeCurrentCount(total)
+      if (type === 'diary')
+        this.$router.push('/diary/entries/');
+      if (type === 'contact')
+        this.$router.push('/phonebook/');
+      if (type === 'todolist')
+        this.$router.push('/todolist/');
+    },
+    getFolder() {
+      this.$axios.get(api.getFolder)
+        .then(res => {
+          if (res.data.code === 11) {
+            alert('登录失效')
+            this.$router.push('/login')
+          }
+          if (res.data.code === 0) {
+            this.items = res.data.data
+          }
+          console.log(res.data)
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    },
+    deleteItem() {
+      this.$axios.delete(api.deleteFolder + this.selectedItem)
+        .then(res => {
+          if (res.data.code === 0) {
+            console.log(res)
+            this.getFolder()
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    },
+    getInfo() {
+      this.$axios.get(api.getinfo)
+        .then(res => {
+          if (res.data.code === 0) {
+            this.username = res.data.data.username
+            this.nickname = res.data.data.nickname || '点击设置昵称'
+          }
+          console.log(res.data)
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    }
   }
+}
+</script>
 
+<style lang="less" scoped>
+@import '../../less/common.less';
+@black: #3c3c3c;
+.box() {
+  float: left;
+  box-sizing: border-box;
+  padding: 10px 10px;
+}
+
+header {
+  margin-top: @padding-for-bar;
+  box-sizing: border-box;
+  height: @home-header-height;
+  background-color: @main-color;
+  color: #fff;
+  img {
+    .box();
+    height: 100%;
+    border-radius: 50%;
+  }
+  .name {
+    .box();
+    width: ~"calc(100vw - 110px)";
+    overflow-x: scroll;
+    .nickname {
+      font-size: 1.2rem;
+    }
+  }
+  i {
+    float: right;
+    line-height: @home-header-height;
+    font-size: 1.5rem;
+    padding-right: 10px;
+  }
+}
+
+#main {
+  height: @home-container-height;
+  overflow-y: scroll;
+  box-sizing: border-box;
+  .item {
+    border-bottom: 1px #ccc solid;
+    padding: 10px 10px 10px 0;
+    margin-left: 20px;
+    line-height: 3rem;
+    color: rgb(92, 115, 136);
+    height: 3rem;
+    .iconfont {
+      font-size: 1.5rem;
+    }
+    .iconfont,
+    span {
+      vertical-align: middle;
+    }
+    .total {
+      float: right;
+    }
+  }
+}
+
+footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 0 .4rem;
+  width: 100vw;
+  height: @common-footer-height;
+  background-color: #fff;
+  border-top: 1px #CACACA solid;
+  .inputdiv {
+    position: relative;
+    width: 100%;
+    input {
+      padding-top: .4rem;
+      width: 95%;
+      box-sizing: border-box;
+      border: none;
+      border-radius: 10px;
+      background-color: @main-color;
+      padding-left: 30px;
+      font-size: 20px;
+      line-height: 28px;
+    }
+    .search {
+      position: absolute;
+      top: 50%;
+      margin-top: -12px;
+      left: 5px;
+      line-height: 24px;
+    }
+  }
+  .search,
+  input {
+    color: #fff;
+  }
+  .cog {
+    color: @main-color;
+    font-size: 24px;
+  }
+}
 </style>

@@ -10,95 +10,104 @@
   </div>
 </template>
 <script>
-import api from '../js/api'
-import Vue from 'vue'
-import { mapState } from 'vuex'
+  import api from '../js/api'
+  import Vue from 'vue'
 
-export default {
-  data() {
-    return {
-      username: '',
-      password: '',
-      isRegister: false
+  import {
+    mapState,
+    mapMutations
+  } from 'vuex'
+  export default {
+    data() {
+      return {
+        username: '',
+        password: '',
+        isRegister: false
+      }
+    },
+
+    methods: {
+      ...mapMutations([
+        'changeUserid',
+      ]),
+      login() {
+        var data = {
+          name: this.username,
+          password: this.password
+        }
+        this.$axios.post(api.login, data, api.apiConfig())
+          .then(res => {
+            console.log(res.data)
+            if (res.data != 'false') {
+              this.changeUserid(res.data);
+              this.$router.replace('home')
+            }
+          })
+      },
+      register() {
+        var data = {
+          name: this.username,
+          password: this.password
+        }
+        this.$axios.post(api.register, data)
+          .then(res => {
+            console.log(res.data)
+            if (res.data.code === 1 && res.data.err.code === 11000) {
+              alert('用户名已被占用...')
+            }
+            if (res.data.code === 0) {
+              this.$router.replace('home')
+            }
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+      },
     }
-  },
-  methods: {
-    login() {
-      var data = {
-        name: this.username,
-        password: this.password
-      }
-      this.$axios.post(api.login, data,api.apiConfig())
-        .then(res => {
-          console.log(res.data)
-          if (res.data == 'true') {
-            this.$router.replace('home')
-          }
-        })
-    
-    },
-    register() {
-      var data = {
-        name: this.username,
-        password: this.password
-      }
-      this.$axios.post(api.register, data)
-        .then(res => {
-          console.log(res.data)
-          if (res.data.code === 1 && res.data.err.code === 11000) {
-            alert('用户名已被占用...')
-          }
-          if (res.data.code === 0) {
-            this.$router.replace('home')
-          }
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
-    },
   }
-}
+
 </script>
 
 <style lang="less" scoped>
-@import '../../less/common.less';
-.login {
-  background-image: url('../../assets/63524818_p0.png');
-  background-size: 100%;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  .logo,
-  input,
-  button,
-  p {
-    width: 250px;
+  @import '../../less/common.less';
+  .login {
+    background-image: url('../../assets/63524818_p0.png');
+    background-size: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    .logo,
+    input,
+    button,
+    p {
+      width: 250px;
+    }
+    input,
+    button {
+      height: 40px;
+      font-size: 20px;
+      margin-top: 10px;
+    }
+    input {
+      box-sizing: border-box;
+      padding: 0 15px;
+      border: none;
+      background-color: #fff;
+      border-radius: 5px;
+    }
+    button {
+      border: none;
+      background-color: #4582ff;
+      color: #fff;
+      border-radius: 50px;
+    }
+    p {
+      color: #fff;
+      margin-top: 10px;
+      text-align: right;
+    }
   }
-  input,
-  button {
-    height: 40px;
-    font-size: 20px;
-    margin-top: 10px;
-  }
-  input {
-    box-sizing: border-box;
-    padding: 0 15px;
-    border: none;
-    background-color: #fff;
-    border-radius: 5px;
-  }
-  button {
-    border: none;
-    background-color: #4582ff;
-    color: #fff;
-    border-radius: 50px;
-  }
-  p {
-    color: #fff;
-    margin-top: 10px;
-    text-align: right;
-  }
-}
+
 </style>
