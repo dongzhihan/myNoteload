@@ -1,7 +1,7 @@
 /* import {
    Toast,
  } from 'mint-ui';*/
-
+let host = 'http://localhost:3000/';
 const api = {
   apiConfig() {
     return {
@@ -21,9 +21,9 @@ const api = {
       }],
     };
   },
-  login: 'http://localhost:3000/login',
-  userInfo: 'http://localhost:3000/users/userInfo',
-  folder: 'http://localhost:3000/note/folder',
-  getFolder: 'http://localhost:3000/note/getFolder'
+  login: `${host}login`,
+  userInfo: `${host}users/userInfo`,
+  folder: `${host}note/folder`,
+  getFolder: `${host}note/getFolder`
 }; // //////////api存放位置
 export default api;
