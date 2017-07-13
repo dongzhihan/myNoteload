@@ -9,10 +9,10 @@
       <i class="iconfont icon-tianjia" @click="showNewFolderModal"></i>
     </header>
   
-    <div id="main">
-      <div v-for="item in items" class="item" :data-folderid="item._id" :data-total="item.total" :data-foldername="item.foldername" v-finger:long-tap="showDeleteModal" :data-type="item.type" @click="jump" :key="item._id">
+    <div id="main" class="main">
+      <div v-for="item in items" class="item" :data-folderid="item._id" :data-total="item.total" :data-foldername="item.folderName" v-finger:long-tap="showDeleteModal" :data-type="item.type" @click="jump" :key="item._id">
         <i class="iconfont" :class="transferToIcon(item.type)"></i>
-        <span>{{item.foldername}}</span>
+        <span>{{item.folderName}}</span>
         <div class="total">
           <span>{{item.total}}</span>
           <i class="iconfont icon-next"></i>
@@ -34,7 +34,7 @@
   </div>
 </template>
 <script>
-import api from '../js/api'
+import api from '../js/api';
 import Vue from 'vue'
 import { mapState, mapMutations } from 'vuex'
 import vmodal from 'vue-js-modal'
@@ -108,15 +108,15 @@ export default {
         this.$router.push('/todolist/');
     },
     getFolder() {
-      this.$axios.get(api.getFolder)
+      this.$axios.get(`${api.getFolder}?userid=${this.$store.state.userid}`)
         .then(res => {
           if (res.data.code === 11) {
             alert('登录失效')
             this.$router.push('/login')
           }
-          if (res.data.code === 0) {
-            this.items = res.data.data
-          }
+         
+            this.items = res.data
+        
           console.log(res.data)
         })
         .catch(function (error) {
@@ -192,6 +192,7 @@ header {
   height: @home-container-height;
   overflow-y: scroll;
   box-sizing: border-box;
+  width:100%;
   .item {
     border-bottom: 1px #ccc solid;
     padding: 10px 10px 10px 0;

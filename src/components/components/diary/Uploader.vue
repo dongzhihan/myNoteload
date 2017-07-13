@@ -10,7 +10,7 @@
   </div>
 </template>
 <script>
-import api from '../../api/api-config.js'
+  import api from '../../../js/api';
 import { mapGetters, mapMutations } from 'vuex'
 export default {
   data() {

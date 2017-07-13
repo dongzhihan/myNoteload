@@ -23,6 +23,7 @@ const api = {
   },
   login: 'http://localhost:3000/login',
   userInfo: 'http://localhost:3000/users/userInfo',
-  folder: 'http://localhost:3000/note/folder'
+  folder: 'http://localhost:3000/note/folder',
+  getFolder: 'http://localhost:3000/note/getFolder'
 }; // //////////api存放位置
 export default api;

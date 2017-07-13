@@ -77,7 +77,7 @@ export default {
 }
 </script>
 <style lang="less" scoped>
-@import '../../less/common.less';
+@import '../../../../less/common.less';
 .mask {
   position: absolute;
   left: 0;
